@@ -1,52 +1,38 @@
-import React, {useState} from 'react';
-import {IntlProvider} from 'react-intl';
-import French from '../lang/fr.json';
-import Arabic from '../lang/ar.json';
-import English from '../lang/en.json';
+import React, { useState } from "react";
+import { IntlProvider } from "react-intl";
+import French from "../lang/fr.json";
+import Arabic from "../lang/ar.json";
+import English from "../lang/en.json";
 
 export const Context = React.createContext();
 
-const local = navigator.language;
+const local = navigator.language.split(/[-_]/)[0];
 
-let lang;
-if (local === 'en') {
-    lang = English;
-}else {
-    if (local === 'fr') {
-        lang = French;
-    } else {
-        lang = Arabic;
-    }
-}
+const supportedMessages = {
+  fr: French,
+  en: English,
+  ar: Arabic
+};
+const language = navigator.language.split(/[-_]/)[0];
 
 const Wrapper = (props) => {
-    const [locale, setLocale] = useState(local);
+  const [locale, setLocale] = useState(language);
 
-    const [messages, setMessages] = useState(lang);
+  const [selectedMessage, setMessages] = useState(supportedMessages[local]);
 
-    function selectLanguage(e) {
-        const newLocale = e.target.value;
-        setLocale(newLocale);
-        if (newLocale === 'en') {
-            setMessages(English);
-        } else {
-            if (newLocale === 'fr'){
-                setMessages(French);
-            } else {
-                setMessages(Arabic);
-            }
-        }
-    }
+  function selectLanguage(e) {
+    const newLocale = e.target.value;
+    setLocale(newLocale);
+    setMessages(supportedMessages[newLocale])
+  }
 
-    return (
-        <Context.Provider value = {{locale, selectLanguage}}>
-            <IntlProvider messages={messages} locale={locale}>
-                {props.children}
-            </IntlProvider>
-        </Context.Provider>
-
-    );
-}
-
+  return (
+    <Context.Provider value={{ locale, selectLanguage }}>
+      <IntlProvider messages={selectedMessage} locale={locale}>
+        {props.children}
+      </IntlProvider>
+    </Context.Provider>
+  );
+};
 
 export default Wrapper;
